@@ -39,5 +39,9 @@ func NewRouter(authHandler *controller.AuthHandler, userController controller.Us
 
 	router.PanicHandler = exception.ErrorHandler
 
+	swaggerHandler := NewSwaggerHandler()
+	router.Handler("GET", "/swagger.json", swaggerHandler)
+	router.Handler("GET", "/swagger/", swaggerHandler)
+
 	return router
 }

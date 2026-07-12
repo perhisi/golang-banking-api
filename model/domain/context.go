@@ -5,7 +5,7 @@ import "context"
 type contextKey string
 
 var (
-	JWTContextUserIDKey  contextKey = "user_id"
+	JWTContextUserIDKey   contextKey = "user_id"
 	JWTContextUserRoleKey contextKey = "user_role"
 )
 

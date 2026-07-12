@@ -52,12 +52,12 @@ func (repository *AccountRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		err := rows.Scan(&account.Id, &account.AccountName)
 		helper.PanicIfError(err)
 		return account, nil
-	} 
-	
+	}
+
 	err = rows.Err()
 	helper.PanicIfError(err)
 	return account, errors.New("account is not found")
-	
+
 }
 
 func (repository *AccountRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Account {

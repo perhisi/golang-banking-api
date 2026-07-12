@@ -25,11 +25,15 @@ func AuthRoleMiddleware(allowedRoles ...domain.Role) func(http.Handler) http.Han
 			}
 
 			authHeader := r.Header.Get("Authorization")
-			if authHeader == "" || len(authHeader) < 8 {
+			if authHeader == "" {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
-			tokenStr := authHeader[7:]
+
+			tokenStr := authHeader
+			if strings.HasPrefix(strings.ToLower(authHeader), "bearer ") {
+				tokenStr = authHeader[7:]
+			}
 
 			claims := &domain.JWTClaims{}
 			token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {

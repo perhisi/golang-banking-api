@@ -15,6 +15,14 @@ func NewAuthHandler(au service.AuthUsecase) *AuthHandler {
 	return &AuthHandler{authUsecase: au}
 }
 
+// @Summary		Register user
+// @Description	Register a new user account
+// @Tags			Auth
+// @Accept			json
+// @Produce		plain
+// @Param			request	body	domain.User	true	"User registration"
+// @Success		201
+// @Router			/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req domain.User
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -30,6 +38,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Registrasi sukses"))
 }
 
+// @Summary		Login
+// @Description	Login user and return access and refresh tokens
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			request	body		domain.User	true	"Login credentials"
+// @Success		200		{object}	domain.TokenResponse
+// @Router			/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req domain.User
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -47,6 +63,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
+// @Summary		Refresh token
+// @Description	Refresh access token using refresh token
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Param			request	body		map[string]string	true	"Refresh token request"
+// @Success		200		{object}	map[string]string
+// @Router			/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req map[string]string
 	json.NewDecoder(r.Body).Decode(&req)
@@ -60,6 +84,14 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"access_token": newAccess})
 }
 
+// @Summary		Logout
+// @Description	Logout user by invalidating refresh token
+// @Tags			Auth
+// @Accept			json
+// @Produce		plain
+// @Param			request	body	map[string]string	true	"Logout request"
+// @Success		200
+// @Router			/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	var req map[string]string
 	json.NewDecoder(r.Body).Decode(&req)

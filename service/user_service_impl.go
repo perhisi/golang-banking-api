@@ -38,7 +38,7 @@ func (service *UserServiceImpl) Create(ctx context.Context, request web.UserCrea
 		Email:    request.Email,
 		Password: request.Password,
 		Name:     request.Name,
-		Role:    domain.Role(request.Role),
+		Role:     domain.Role(request.Role),
 	}
 
 	user = service.UserRepository.Save(ctx, tx, user)

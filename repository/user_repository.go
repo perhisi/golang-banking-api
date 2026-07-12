@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"golang-banking-api/model/domain"
 )
+
 type UserRepository interface {
 	Save(ctx context.Context, tx *sql.Tx, user domain.User) domain.User
 	Update(ctx context.Context, tx *sql.Tx, user domain.User) domain.User
