@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"context"
-	"golang-banking-api/model/domain"
 	"net/http"
+	"strings"
+
+	"golang-banking-api/model/domain"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -53,9 +54,15 @@ func AuthRoleMiddleware(allowedRoles ...domain.Role) func(http.Handler) http.Han
 				return
 			}
 
-			// Simpan data klaim ke context jika handler butuh ID pengakses
-			ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
+			ctx := domain.ContextWithUser(r.Context(), claims.UserID, claims.Role)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+func StripPrefix(prefix string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, prefix)
+		next.ServeHTTP(w, r)
+	})
 }

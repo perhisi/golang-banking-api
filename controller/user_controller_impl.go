@@ -93,3 +93,15 @@ func (controller *UserControllerImpl) FindAll(writer http.ResponseWriter, reques
 
 	helper.WriteToResponseBody(writer, webResponse)
 }
+
+func (controller *UserControllerImpl) GetMe(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userId := helper.GetUserId(request.Context())
+	userResponse := controller.UserService.GetMe(request.Context(), userId)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   userResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}

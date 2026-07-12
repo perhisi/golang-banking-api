@@ -28,3 +28,13 @@ func (m *mysqlUserRepository) GetByUsername(name string) (*domain.User, error) {
 	}
 	return &user, nil
 }
+
+func (m *mysqlUserRepository) GetById(userId int) (*domain.User, error) {
+	var user domain.User
+	query := "SELECT id, name, password, role, email FROM users WHERE id = ?"
+	err := m.db.QueryRow(query, userId).Scan(&user.Id, &user.Name, &user.Password, &user.Role, &user.Email)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

@@ -104,3 +104,16 @@ func (service *UserServiceImpl) FindAll(ctx context.Context) []web.UserResponse 
 
 	return helper.ToUserResponses(users)
 }
+
+func (service *UserServiceImpl) GetMe(ctx context.Context, userId int) web.UserResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	user, err := service.UserRepository.FindById(ctx, tx, userId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return helper.ToUserResponse(user)
+}

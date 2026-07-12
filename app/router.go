@@ -3,6 +3,8 @@ package app
 import (
 	"golang-banking-api/controller"
 	"golang-banking-api/exception"
+	"golang-banking-api/middleware"
+	"golang-banking-api/model/domain"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -15,11 +17,25 @@ func NewRouter(authHandler *controller.AuthHandler, userController controller.Us
 	router.HandlerFunc("POST", "/refresh", authHandler.Refresh)
 	router.HandlerFunc("POST", "/logout", authHandler.Logout)
 
-	router.GET("/api/admin/users", userController.FindAll)
-	router.GET("/api/admin/users/:userId", userController.FindById)
-	router.POST("/api/admin/users", userController.Create)
-	router.PUT("/api/admin/users/:userId", userController.Update)
-	router.DELETE("/api/admin/users/:userId", userController.Delete)
+	adminRouter := httprouter.New()
+	adminRouter.GET("/users", userController.FindAll)
+	adminRouter.GET("/users/:userId", userController.FindById)
+	adminRouter.POST("/users", userController.Create)
+	adminRouter.PUT("/users/:userId", userController.Update)
+	adminRouter.DELETE("/users/:userId", userController.Delete)
+
+	adminHandler := middleware.AuthRoleMiddleware(domain.RoleAdmin)(middleware.StripPrefix("/api/admin", adminRouter))
+	for _, method := range []string{"GET", "POST", "PUT", "PATCH", "DELETE"} {
+		router.Handler(method, "/api/admin/*path", adminHandler)
+	}
+
+	userRouter := httprouter.New()
+	userRouter.GET("/profile", userController.GetMe)
+
+	userHandler := middleware.AuthRoleMiddleware(domain.RoleAdmin, domain.RoleUser)(middleware.StripPrefix("/api/user", userRouter))
+	for _, method := range []string{"GET", "POST", "PUT", "PATCH", "DELETE"} {
+		router.Handler(method, "/api/user/*path", userHandler)
+	}
 
 	router.PanicHandler = exception.ErrorHandler
 

@@ -19,4 +19,5 @@ type User struct {
 type UserRepository interface {
 	Create(user *User) error
 	GetByUsername(username string) (*User, error)
+	GetById(userId int) (*User, error)
 }

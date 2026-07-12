@@ -81,9 +81,12 @@ func (u *authUsecase) Refresh(rfTokenStr string) (string, error) {
 		return "", errors.New("token kedaluwarsa")
 	}
 
-	// Untuk mendapat Role, idealnya ambil dari userRepo lewat storedToken.UserID
-	// Di sini disederhanakan dengan asumsi penanganan kueri kustom jika dibutuhkan
-	return u.generateAccessToken(storedToken.UserID, domain.RoleUser) // Sesuaikan role aslinya
+	user, err := u.userRepo.GetById(storedToken.UserID)
+	if err != nil {
+		return "", err
+	}
+
+	return u.generateAccessToken(user.Id, user.Role)
 }
 
 func (u *authUsecase) Logout(rfTokenStr string) error {
