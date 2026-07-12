@@ -12,4 +12,5 @@ type AccountRepository interface {
 	Delete(ctx context.Context, tx *sql.Tx, account domain.Account)
 	FindById(ctx context.Context, tx *sql.Tx, accountId int) (domain.Account, error)
 	FindAll(ctx context.Context, tx *sql.Tx) []domain.Account
+	FindByUserId(ctx context.Context, tx *sql.Tx, userId int) []domain.Account
 }

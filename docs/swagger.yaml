@@ -1,4 +1,12 @@
 definitions:
+  domain.AccountType:
+    enum:
+    - savings
+    - checking
+    type: string
+    x-enum-varnames:
+    - Savings
+    - Checking
   domain.Role:
     enum:
     - admin
@@ -28,6 +36,56 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/domain.Role'
+    type: object
+  web.AccountCreateRequest:
+    properties:
+      account_bank:
+        maxLength: 100
+        minLength: 1
+        type: string
+      account_type:
+        $ref: '#/definitions/domain.AccountType'
+      balance:
+        minimum: 1
+        type: number
+      user_id:
+        maximum: 100
+        minimum: 1
+        type: integer
+    required:
+    - account_bank
+    - account_type
+    - balance
+    - user_id
+    type: object
+  web.AccountResponse:
+    properties:
+      account_bank:
+        type: string
+      account_type:
+        type: string
+      balance:
+        type: number
+      id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  web.AccountUpdateRequest:
+    properties:
+      account_bank:
+        maxLength: 100
+        minLength: 1
+        type: string
+      account_type:
+        $ref: '#/definitions/domain.AccountType'
+      balance:
+        minimum: 1
+        type: number
+    required:
+    - account_bank
+    - account_type
+    - balance
     type: object
   web.UserCreateRequest:
     properties:
@@ -111,6 +169,119 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/admin/accounts:
+    get:
+      consumes:
+      - application/json
+      description: Get all accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/web.AccountResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List accounts
+      tags:
+      - Accounts
+    post:
+      consumes:
+      - application/json
+      description: Create a new account
+      parameters:
+      - description: Account creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.AccountResponse'
+      security:
+      - BearerAuth: []
+      summary: Create account
+      tags:
+      - Accounts
+  /api/admin/accounts/{accountId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete account by ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Delete account
+      tags:
+      - Accounts
+    get:
+      consumes:
+      - application/json
+      description: Get account details by ID (admin only)
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.AccountResponse'
+      security:
+      - BearerAuth: []
+      summary: Get account by ID
+      tags:
+      - Accounts
+    put:
+      consumes:
+      - application/json
+      description: Update account by ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      - description: Account update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.AccountUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.AccountResponse'
+      security:
+      - BearerAuth: []
+      summary: Update account
+      tags:
+      - Accounts
   /api/admin/users:
     get:
       consumes:
@@ -224,6 +395,48 @@ paths:
       summary: Update user
       tags:
       - Users
+  /api/user/accounts:
+    get:
+      consumes:
+      - application/json
+      description: Get accounts belonging to the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/web.AccountResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get my accounts
+      tags:
+      - Accounts
+  /api/user/accounts/{accountId}:
+    get:
+      consumes:
+      - application/json
+      description: Get account details by ID for the authenticated user
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.AccountResponse'
+      security:
+      - BearerAuth: []
+      summary: Get my account by ID
+      tags:
+      - Accounts
   /api/user/profile:
     get:
       consumes:
