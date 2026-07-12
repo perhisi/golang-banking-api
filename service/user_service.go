@@ -12,4 +12,5 @@ type UserService interface {
 	FindById(ctx context.Context, userId int) web.UserResponse
 	FindAll(ctx context.Context) []web.UserResponse
 	GetMe(ctx context.Context, userId int) web.UserResponse
+	UpdateMe(ctx context.Context, request web.UserUpdateMeRequest) web.UserResponse
 }

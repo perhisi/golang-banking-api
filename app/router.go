@@ -31,6 +31,7 @@ func NewRouter(authHandler *controller.AuthHandler, userController controller.Us
 
 	userRouter := httprouter.New()
 	userRouter.GET("/profile", userController.GetMe)
+	userRouter.PUT("/profile", userController.UpdateMe)
 
 	userHandler := middleware.AuthRoleMiddleware(domain.RoleAdmin, domain.RoleUser)(middleware.StripPrefix("/api/user", userRouter))
 	for _, method := range []string{"GET", "POST", "PUT", "PATCH", "DELETE"} {

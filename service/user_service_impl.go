@@ -117,3 +117,26 @@ func (service *UserServiceImpl) GetMe(ctx context.Context, userId int) web.UserR
 
 	return helper.ToUserResponse(user)
 }
+
+func (service *UserServiceImpl) UpdateMe(ctx context.Context, request web.UserUpdateMeRequest) web.UserResponse {
+	err := service.Validate.Struct(request)
+	helper.PanicIfError(err)
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	userId := helper.GetUserId(ctx)
+	user, err := service.UserRepository.FindById(ctx, tx, userId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	user.Email = request.Email
+	user.Password = request.Password
+	user.Name = request.Name
+
+	user = service.UserRepository.Update(ctx, tx, user)
+
+	return helper.ToUserResponse(user)
+}

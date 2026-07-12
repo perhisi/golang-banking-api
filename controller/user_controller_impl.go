@@ -158,3 +158,26 @@ func (controller *UserControllerImpl) GetMe(writer http.ResponseWriter, request 
 
 	helper.WriteToResponseBody(writer, webResponse)
 }
+
+// @Summary		Update current user profile
+// @Description	Update authenticated user profile
+// @Tags			Users
+// @Accept			json
+// @Produce		json
+// @Security		BearerAuth
+// @Param			request	body		web.UserUpdateMeRequest	true	"User update request"
+// @Success		200		{object}	web.UserResponse
+// @Router			/api/user/profile [put]
+func (controller *UserControllerImpl) UpdateMe(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	userUpdateMeRequest := web.UserUpdateMeRequest{}
+	helper.ReadFromRequestBody(request, &userUpdateMeRequest)
+
+	userResponse := controller.UserService.UpdateMe(request.Context(), userUpdateMeRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   userResponse,
+	}
+
+	helper.WriteToResponseBody(writer, webResponse)
+}
