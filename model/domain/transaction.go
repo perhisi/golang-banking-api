@@ -9,7 +9,7 @@ type Transaction struct {
 	Id            int
 	FromAccountId string
 	ToAccountId   string
-	Amount        float64
+	Amount        string
 	Type          TypeTransactions
 	Description   string
 }
