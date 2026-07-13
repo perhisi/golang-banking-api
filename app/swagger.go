@@ -39,20 +39,10 @@ func NewSwaggerHandler() http.Handler {
 			info["version"] = "1.0"
 		}
 		if info["description"] == nil {
-			info["description"] = "A banking REST API built with Go"
+			info["description"] = "A Banking REST API built with Go"
 		}
 		if info["contact"] == nil {
 			info["contact"] = map[string]interface{}{}
-		}
-
-		if spec["host"] == nil {
-			spec["host"] = "localhost:3000"
-		}
-		if spec["basePath"] == nil {
-			spec["basePath"] = "/"
-		}
-		if spec["schemes"] == nil {
-			spec["schemes"] = []string{"http"}
 		}
 
 		if _, ok := spec["securityDefinitions"]; !ok {

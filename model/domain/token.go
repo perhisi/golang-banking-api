@@ -1,12 +1,20 @@
 package domain
 
 import (
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JWTSecret = []byte("kunci_rahasia_super_aman")
+var JWTSecret = []byte(getJWTSecret())
+
+func getJWTSecret() string {
+	if secret := os.Getenv("JWT_SECRET"); secret != "" {
+		return secret
+	}
+	return "kunci_rahasia_super_aman"
+}
 
 type RefreshToken struct {
 	ID        int       `json:"id"`

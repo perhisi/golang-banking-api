@@ -9,9 +9,11 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
 
 	db := app.NewDB()
 	validate := validator.New()
