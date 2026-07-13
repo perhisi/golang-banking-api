@@ -7,12 +7,10 @@ import (
 
 func ToUserResponse(user domain.User) web.UserResponse {
 	return web.UserResponse{
-		Id:           user.Id,
-		Email:        user.Email,
-		Password:     user.Password,
-		Name:         user.Name,
-		Role:         string(user.Role),
-		RefreshToken: user.RefreshToken,
+		Id:    user.Id,
+		Email: user.Email,
+		Name:  user.Name,
+		Role:  string(user.Role),
 	}
 }
 
@@ -40,4 +38,23 @@ func ToAccountResponses(accounts []domain.Account) []web.AccountResponse {
 		accountResponses = append(accountResponses, ToAccountResponse(account))
 	}
 	return accountResponses
+}
+
+func ToTransactionResponse(transaction domain.Transaction) web.TransactionResponse {
+	return web.TransactionResponse{
+		Id:            transaction.Id,
+		ToAccountId:   transaction.ToAccountId,
+		FromAccountId: transaction.FromAccountId,
+		Amount:        transaction.Amount,
+		Type:          transaction.Type,
+		Description:   transaction.Description,
+	}
+}
+
+func ToTransactionResponses(transactions []domain.Transaction) []web.TransactionResponse {
+	var transactionResponses []web.TransactionResponse
+	for _, transaction := range transactions {
+		transactionResponses = append(transactionResponses, ToTransactionResponse(transaction))
+	}
+	return transactionResponses
 }

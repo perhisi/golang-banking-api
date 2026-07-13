@@ -25,7 +25,10 @@ func main() {
 	accountRepository := repository.NewAccountRepository()
 	accountService := service.NewAccountService(accountRepository, userRepository, db, validate)
 	accountController := controller.NewAccountController(accountService)
-	router := app.NewRouter(authHandler, userController, accountController)
+	transactionRepository := repository.NewTransactionRepository()
+	transactionService := service.NewTransactionService(transactionRepository, accountRepository, userRepository, db, validate)
+	transactionController := controller.NewTransactionController(transactionService)
+	router := app.NewRouter(authHandler, userController, accountController, transactionController)
 
 	server := http.Server{
 		Addr:    "localhost:3000",

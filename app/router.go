@@ -9,7 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(authHandler *controller.AuthHandler, userController controller.UserController, accountController controller.AccountController) *httprouter.Router {
+func NewRouter(authHandler *controller.AuthHandler, userController controller.UserController, accountController controller.AccountController, transactionController controller.TransactionController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.HandlerFunc("POST", "/register", authHandler.Register)
@@ -28,6 +28,11 @@ func NewRouter(authHandler *controller.AuthHandler, userController controller.Us
 	adminRouter.POST("/accounts", accountController.Create)
 	adminRouter.PUT("/accounts/:accountId", accountController.Update)
 	adminRouter.DELETE("/accounts/:accountId", accountController.Delete)
+	adminRouter.GET("/transactions", transactionController.FindAll)
+	adminRouter.GET("/transactions/:transactionId", transactionController.FindById)
+	adminRouter.POST("/transactions", transactionController.Create)
+	adminRouter.PUT("/transactions/:transactionId", transactionController.Update)
+	adminRouter.DELETE("/transactions/:transactionId", transactionController.Delete)
 
 	adminHandler := middleware.AuthRoleMiddleware(domain.RoleAdmin)(middleware.StripPrefix("/api/admin", adminRouter))
 	for _, method := range []string{"GET", "POST", "PUT", "PATCH", "DELETE"} {
@@ -36,9 +41,18 @@ func NewRouter(authHandler *controller.AuthHandler, userController controller.Us
 
 	userRouter := httprouter.New()
 	userRouter.GET("/profile", userController.GetMe)
+	userRouter.PATCH("/profile", userController.UpdateMe)
 	userRouter.PUT("/profile", userController.UpdateMe)
 	userRouter.GET("/accounts", accountController.GetMyAccounts)
 	userRouter.GET("/accounts/:accountId", accountController.GetMyAccountById)
+	userRouter.POST("/accounts", accountController.CreateMyAccount)
+	userRouter.PATCH("/accounts/:accountId", accountController.UpdateMyAccount)
+	userRouter.DELETE("/accounts/:accountId", accountController.DeleteMyAccount)
+	userRouter.POST("/transactions/deposit", transactionController.Deposit)
+	userRouter.POST("/transactions/withdraw", transactionController.Withdraw)
+	userRouter.POST("/transactions/transfer", transactionController.Transfer)
+	userRouter.GET("/transactions", transactionController.GetMyTransactions)
+	userRouter.GET("/transactions/:transactionId", transactionController.GetMyTransactionById)
 
 	userHandler := middleware.AuthRoleMiddleware(domain.RoleAdmin, domain.RoleUser)(middleware.StripPrefix("/api/user", userRouter))
 	for _, method := range []string{"GET", "POST", "PUT", "PATCH", "DELETE"} {

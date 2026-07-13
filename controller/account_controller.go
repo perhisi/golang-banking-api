@@ -14,4 +14,7 @@ type AccountController interface {
 	FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	GetMyAccounts(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 	GetMyAccountById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	CreateMyAccount(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	UpdateMyAccount(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	DeleteMyAccount(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
 }

@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/shopspring/decimal"
+
 type AccountType string
 
 const (
@@ -8,9 +10,9 @@ const (
 )
 
 type Account struct {
-	Id          int         `json:"id"`
-	UserId      int         `json:"user_id"`
-	AccountBank string      `json:"account_bank"`
-	Balance     string      `json:"balance"`
-	AccountType AccountType `json:"account_type"`
+	Id          int             `json:"id"`
+	UserId      int             `json:"user_id"`
+	AccountBank string          `json:"account_bank"`
+	Balance     decimal.Decimal `json:"balance"`
+	AccountType AccountType     `json:"account_type"`
 }

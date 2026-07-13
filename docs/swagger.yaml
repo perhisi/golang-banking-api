@@ -22,6 +22,16 @@ definitions:
       refresh_token:
         type: string
     type: object
+  domain.TransactionType:
+    enum:
+    - transfer
+    - deposit
+    - withdrawal
+    type: string
+    x-enum-varnames:
+    - Transfer
+    - Deposit
+    - Withdrawal
   domain.User:
     properties:
       email:
@@ -46,7 +56,6 @@ definitions:
       account_type:
         $ref: '#/definitions/domain.AccountType'
       balance:
-        minimum: 1
         type: number
       user_id:
         maximum: 100
@@ -54,7 +63,6 @@ definitions:
         type: integer
     required:
     - account_bank
-    - account_type
     - balance
     - user_id
     type: object
@@ -80,12 +88,110 @@ definitions:
       account_type:
         $ref: '#/definitions/domain.AccountType'
       balance:
-        minimum: 1
         type: number
     required:
     - account_bank
-    - account_type
     - balance
+    type: object
+  web.TransactionCreateRequest:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      from_account_id:
+        maximum: 100
+        minimum: 1
+        type: integer
+      to_account_id:
+        maximum: 100
+        minimum: 1
+        type: integer
+      type:
+        $ref: '#/definitions/domain.TransactionType'
+    required:
+    - amount
+    - from_account_id
+    - to_account_id
+    type: object
+  web.TransactionDepositRequest:
+    properties:
+      account_id:
+        minimum: 1
+        type: integer
+      amount:
+        type: number
+      description:
+        type: string
+    required:
+    - account_id
+    - amount
+    type: object
+  web.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      from_account_id:
+        type: integer
+      id:
+        type: integer
+      to_account_id:
+        type: integer
+      type:
+        $ref: '#/definitions/domain.TransactionType'
+    type: object
+  web.TransactionTransferRequest:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      from_account_id:
+        minimum: 1
+        type: integer
+      to_account_id:
+        minimum: 1
+        type: integer
+    required:
+    - amount
+    - from_account_id
+    - to_account_id
+    type: object
+  web.TransactionUpdateRequest:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      from_account_id:
+        maximum: 100
+        minimum: 1
+        type: integer
+      to_account_id:
+        maximum: 100
+        minimum: 1
+        type: integer
+      type:
+        $ref: '#/definitions/domain.TransactionType'
+    required:
+    - amount
+    - from_account_id
+    - to_account_id
+    type: object
+  web.TransactionWithdrawRequest:
+    properties:
+      account_id:
+        minimum: 1
+        type: integer
+      amount:
+        type: number
+      description:
+        type: string
+    required:
+    - account_id
+    - amount
     type: object
   web.UserCreateRequest:
     properties:
@@ -115,10 +221,6 @@ definitions:
       id:
         type: integer
       name:
-        type: string
-      password:
-        type: string
-      refresh_token:
         type: string
       role:
         type: string
@@ -282,6 +384,119 @@ paths:
       summary: Update account
       tags:
       - Accounts
+  /api/admin/transactions:
+    get:
+      consumes:
+      - application/json
+      description: Get all transactions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/web.TransactionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List transactions
+      tags:
+      - Transactions
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction
+      parameters:
+      - description: Transaction creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.TransactionCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Create transaction
+      tags:
+      - Transactions
+  /api/admin/transactions/{transactionId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete transaction by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Delete transaction
+      tags:
+      - Transactions
+    get:
+      consumes:
+      - application/json
+      description: Get transaction details by ID (admin only)
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Get transaction by ID
+      tags:
+      - Transactions
+    put:
+      consumes:
+      - application/json
+      description: Update transaction by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      - description: Transaction update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.TransactionUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Update transaction
+      tags:
+      - Transactions
   /api/admin/users:
     get:
       consumes:
@@ -414,7 +629,50 @@ paths:
       summary: Get my accounts
       tags:
       - Accounts
+    post:
+      consumes:
+      - application/json
+      description: Create a new account for the authenticated user
+      parameters:
+      - description: Account creation request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.AccountCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.AccountResponse'
+      security:
+      - BearerAuth: []
+      summary: Create my account
+      tags:
+      - Accounts
   /api/user/accounts/{accountId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an account belonging to the authenticated user
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Delete my account
+      tags:
+      - Accounts
     get:
       consumes:
       - application/json
@@ -435,6 +693,34 @@ paths:
       security:
       - BearerAuth: []
       summary: Get my account by ID
+      tags:
+      - Accounts
+    patch:
+      consumes:
+      - application/json
+      description: Update an account belonging to the authenticated user
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      - description: Account update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.AccountUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.AccountResponse'
+      security:
+      - BearerAuth: []
+      summary: Update my account
       tags:
       - Accounts
   /api/user/profile:
@@ -477,6 +763,146 @@ paths:
       summary: Update current user profile
       tags:
       - Users
+  /api/user/transactions:
+    get:
+      consumes:
+      - application/json
+      description: List all transactions across the authenticated user's accounts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/web.TransactionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List my transactions
+      tags:
+      - Transactions
+  /api/user/transactions/{accountId}:
+    get:
+      consumes:
+      - application/json
+      description: Get transactions for a specific account belonging to the authenticated
+        user
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/web.TransactionResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get my transactions by account ID
+      tags:
+      - Transactions
+  /api/user/transactions/{transactionId}:
+    get:
+      consumes:
+      - application/json
+      description: Get transaction details by ID for the authenticated user
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: transactionId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Get my transaction by ID
+      tags:
+      - Transactions
+  /api/user/transactions/deposit:
+    post:
+      consumes:
+      - application/json
+      description: Deposit an amount into an account
+      parameters:
+      - description: Deposit request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.TransactionDepositRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Deposit
+      tags:
+      - Transactions
+  /api/user/transactions/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfer an amount between accounts
+      parameters:
+      - description: Transfer request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.TransactionTransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Transfer
+      tags:
+      - Transactions
+  /api/user/transactions/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Withdraw an amount from an account
+      parameters:
+      - description: Withdraw request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.TransactionWithdrawRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.TransactionResponse'
+      security:
+      - BearerAuth: []
+      summary: Withdraw
+      tags:
+      - Transactions
   /login:
     post:
       consumes:
